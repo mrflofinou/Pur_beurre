@@ -1,1 +1,32 @@
 {% extends 'substitute/base.html' %}
+
+{% block header %}
+<header class="masthead text-center text-white d-flex">
+    <div class="container my-auto">
+      <div class="row">
+        <div class="col-lg-10 mx-auto">
+          <h1 class="text-uppercase">
+            <strong>Du gras, oui, mais de qualité !</strong>
+          </h1>
+          <h2>
+            Trouvez un produit de substitution pour ceux que vous consommez tous les jours.
+          </h2>
+        <hr>
+        </div>
+        <div class="col-lg-8 mx-auto">
+            <form class="row form-inline">
+                <div class="col-lg-8 input-group mx-auto">
+                    <label for="foodsearch" style="display:none">Chercher</label>
+                    <input type="text" name="foodsearch" class="form-control form-control-sm" id="foodsearch" placeholder="Produit">
+                    <div class="input-group-prepend">
+                        <span class="input-group-btn">
+                          <button class="btn btn-primary" type="submit">Valider</button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+</header>
+{% endblock %}
