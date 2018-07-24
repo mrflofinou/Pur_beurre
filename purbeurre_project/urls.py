@@ -21,7 +21,7 @@ from substitute import views
 
 urlpatterns = [
     url(r'^$', views.index, name="index"),
-    # url(r'^substitute', include('substitute.urls', namespace="substitute")),
+    url(r'^substitute/', include('substitute.urls', namespace="substitute")),
     url(r'^admin/', admin.site.urls),
 ]
 
