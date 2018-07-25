@@ -177,6 +177,26 @@ header.masthead {
   background-size: cover;
 }
 
+.headertemp {
+  padding-top: 10rem;
+  padding-bottom: calc(10rem - 56px);
+  background-color: #345a61;
+  background-position: center center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.headertemp h1 {
+  font-size: 1.5rem;
+}
+
+.headertemp hr{
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
 header.masthead hr {
   margin-top: 30px;
   margin-bottom: 30px;
