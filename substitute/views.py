@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from .libs.api_interactions import DataProviderClient
+from .libs.api_interactions import Substitutes
 
 
 def index(request):
@@ -13,9 +13,10 @@ def results(request):
     """ Page with results of a request """
 
     query = request.GET.get("query")
-    user_request = DataProviderClient()
-    substitutes_request = user_request.get_substitutes(query)
-    substitutes = []
+    # user_request = DataProviderClient(query=query)
+    substitutes = Substitutes(query)
+    substitutes_request = substitutes.get_substitutes()
+    substitutes_list = []
     for product in substitutes_request:
         substitute = {
             "name": product.get("product_name_fr"),
@@ -23,10 +24,10 @@ def results(request):
             "picture": product.get("image_url", ""),
             "id_product": product["code"]
         }
-        substitutes.append(substitute)
+        substitutes_list.append(substitute)
     context = {
         "query": query,
-        "substitutes": substitutes
+        "substitutes": substitutes_list
     }
     return render(request, "substitute/results.html", context)
     
