@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponse
 
@@ -31,8 +33,16 @@ def results(request):
     }
     return render(request, "substitute/results.html", context)
     
-def details(request):
+def details(request, product_id):
     """ Page with details of a selected substitute """
 
-    
-    return render(request, "substitute/details.html", locals())
+    substitutes_list = json.load(open("substitutes.json"))
+    for substitute in substitutes_list:
+        if substitute["_id"] == product_id:
+            context = {
+                "name": substitute.get("product_name_fr"),
+                "nutriscore": substitute["nutrition_grade_fr"],
+                "picture": substitute.get("image_url", ""),
+            }
+            break
+    return render(request, "substitute/details.html", context)
