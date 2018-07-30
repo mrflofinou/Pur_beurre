@@ -39,7 +39,8 @@ class FonctionalTest(TestCase):
         submit.click()
         substitute = self.driver.find_element_by_css_selector("a.substitute")
         substitute.click()
-        self.assertIn("http://localhost:8000/substitute/details/", self.driver.current_url)
-    
-
+        self.assertRegexpMatches(
+                        self.driver.current_url,
+                        r"^http:\//localhost:8000\/substitute\/[0-9]+\/$"
+                        )
     
