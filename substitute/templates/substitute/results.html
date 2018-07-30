@@ -1,10 +1,18 @@
 {% extends 'substitute/base.html' %}
 
+{% block title %}
+
+    Résultats pour {{ query }}
+
+{% endblock %}
+
+
 {% block header %}
 
     {% include 'substitute/header.html' with title=query %}
 
 {% endblock %}
+
 
 {% block content %}
 
@@ -16,10 +24,10 @@
             {% for substitute in substitutes %}
 
             <div class="col-sm-4 text-center">
-                <a href="">
-                <img class="img-responsive" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
+                <a href="{% url 'substitute:details' product_id=substitute.id_product %}" class="substitute">
+                    <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
+                    <h5>{{ substitute.name }}</h5>
                 </a>
-                <h5><a href="">{{ substitute.name }}</a></h5>
             </div>
         
             {% endfor %}

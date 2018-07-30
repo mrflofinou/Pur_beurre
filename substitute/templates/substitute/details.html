@@ -1,9 +1,16 @@
 {% extends 'substitute/base.html' %}
 
+{% block title %}
+
+    {{ name }}
+
+{% endblock %}
+
+
 {% block header %}
 
-    {% include 'substitute/header.html' with title=query %}
-    
+    {% include 'substitute/header.html' with title=name %}
+
 {% endblock %}
 
 {% block content %}
@@ -11,7 +18,12 @@
 <section id="details">
     <div class="container text-center">
         <div class="row">
-
+            <div class="col-sm-12 text-center">
+                <img class="img-responsive rounded my-2" src="https://static.openfoodfacts.org/images/misc/nutriscore-{{ nutriscore }}.svg" alt="Nutriscore: {{ nutriscore }}">
+            </div>
+            <div class="col-sm-12 text-center">
+                <img class="img-responsive rounded my-2" src="{{ picture }}" alt="{{ name }}">
+            </div>
         </div>
     </div>
 </section>
