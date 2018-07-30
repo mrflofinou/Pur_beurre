@@ -31,3 +31,8 @@ def results(request):
     }
     return render(request, "substitute/results.html", context)
     
+def details(request):
+    """ Page with details of a selected substitute """
+
+    
+    return render(request, "substitute/details.html", locals())
