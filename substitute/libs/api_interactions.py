@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 class DataApiClient:
@@ -85,4 +87,16 @@ class Substitutes:
             except IndexError:
                 substitutes = []
                 break
+            
+            # I save the json results in a file to allows th user to select a
+            # substitute and display it in the details page.
+            with open("substitutes.json", "w") as json_file:
+                json.dump(
+                    substitutes,
+                    json_file,
+                    ensure_ascii=False,
+                    indent=4,
+                    sort_keys=True
+                    )
+
         return substitutes
