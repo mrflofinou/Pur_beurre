@@ -21,10 +21,35 @@
             <div class="col-sm-12 text-center">
                 <img class="img-responsive rounded my-2" src="https://static.openfoodfacts.org/images/misc/nutriscore-{{ nutriscore }}.svg" alt="Nutriscore: {{ nutriscore }}">
             </div>
-            <div class="col-sm-12 text-center">
+        </div>
+        <div class="row mt-5">
+            <div class="col-sm-6 text-center my-auto">
                 <img class="img-responsive rounded my-2" src="{{ picture }}" alt="{{ name }}">
             </div>
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-sm-12 text-left">
+                        <h6>
+                            <span style="text-decoration: underline">Liste des ingrédients:</span> <br>
+                            {% autoescape off %}
+                            {{ ingredients }}
+                            {% endautoescape %}
+                        </h6>
+                    </div>
+                    <div class="col-sm-12">
+                        <img class="img-responsive rounded my-2" src="{{ nutrition_picture }}">
+                    </div>
+                </div>
+            </div>
         </div>
+        {% if stores %}
+        <div class="row mt-5">
+                <div class="col-sm-6 text-center">
+                    <h5>Où se procurer cet aliment ? <br> {{ stores }}</h5>
+                </div>
+            </div>
+        {% endif %}
+         
     </div>
 </section>
 
