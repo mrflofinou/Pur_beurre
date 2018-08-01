@@ -7,11 +7,10 @@ class DataApiClient:
     Class to get data of products from the API OpenFoodFacts
     """
 
-    # modifier les paramètres de la fonction (**kwargs)
-    def __init__(self, query="", category="", nutriscore=""):
-        self.query = query
-        self.category = category
-        self.nutriscore = nutriscore
+    def __init__(self, **kwargs):
+        self.query = kwargs.get("query", "")
+        self.category = kwargs.get("category", "")
+        self.nutriscore = kwargs.get("nutriscore", "")
 
     def get_data_from_api(self):
         """
@@ -37,6 +36,7 @@ class DataApiClient:
                         params=payload
                         )
         data = search.json()
+        # return a list of dictionaries. Every product is a dictionary
         return data["products"]
 
 
@@ -53,13 +53,15 @@ class Substitutes:
 
         data = DataApiClient(query=self.query)
         data_from_api = data.get_data_from_api()
+        # I've made the choice to select the first product from the results of
+        # the user request, to find the category.
         product = data_from_api[0]
         # I choose the last categery of the list 'categories_hieararchy'
         category = product["categories_hierarchy"]
         category = category[-1]
         # I just want to keep the string after the caracters of the country
-        # ex: "fr:"
-        category = category[3:].replace("-", " ")
+        # ex: "fr:pâte-a-tartiner"
+        category = category[3:].replace("-", " ") # => regex
         return category
 
     def get_substitutes(self):
@@ -71,7 +73,7 @@ class Substitutes:
         substitute_category = self._get_category()
         substitutes = []
         index = 0
-        nutrition_grades = ["a", "b", "c", "d", "e"]
+        nutrition_grades = ["a", "b", "c","d","e"]
         # The goal of this loop is to have substitutes in the same category of
         # the sought product. If the search with nutrition grade 'A' don't have
         # results, I search substitutes in same category but with higher
@@ -87,16 +89,4 @@ class Substitutes:
             except IndexError:
                 substitutes = []
                 break
-            
-            # I save the json results in a file to allows th user to select a
-            # substitute and display it in the details page.
-            with open("substitutes.json", "w") as json_file:
-                json.dump(
-                    substitutes,
-                    json_file,
-                    ensure_ascii=False,
-                    indent=4,
-                    sort_keys=True
-                    )
-
         return substitutes
