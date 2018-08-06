@@ -1,4 +1,5 @@
 import json
+import re
 
 import requests
 
@@ -37,7 +38,7 @@ class DataApiClient:
                         )
         data = search.json()
         # return a list of dictionaries. Every product is a dictionary
-        return data["products"]
+        return data
 
 
 class Substitutes:
@@ -52,16 +53,18 @@ class Substitutes:
         """
 
         data = DataApiClient(query=self.query)
-        data_from_api = data.get_data_from_api()
+        data_from_api = data.get_data_from_api()["products"]
         # I've made the choice to select the first product from the results of
         # the user request, to find the category.
         product = data_from_api[0]
         # I choose the last categery of the list 'categories_hieararchy'
-        category = product["categories_hierarchy"]
-        category = category[-1]
+        category_hierarchy = product["categories_hierarchy"]
+        category_extracted = category_hierarchy[-1]
         # I just want to keep the string after the caracters of the country
         # ex: "fr:pâte-a-tartiner"
-        category = category[3:].replace("-", " ") # => regex
+        category_string = re.search(":(.+)$", category_extracted)
+        category = category_string.group(1)
+        category = category.replace("-", " ")
         return category
 
     def get_substitutes(self):
@@ -72,6 +75,8 @@ class Substitutes:
 
         substitute_category = self._get_category()
         substitutes = []
+        # index is used to choose a nutriscore in the next list and obtain
+        # substitutes in function of the nutrition grade
         index = 0
         nutrition_grades = ["a", "b", "c","d","e"]
         # The goal of this loop is to have substitutes in the same category of
@@ -84,7 +89,7 @@ class Substitutes:
                                     category=substitute_category,
                                     nutriscore=nutrition_grades[index]
                                     )
-                substitutes = data.get_data_from_api()
+                substitutes = data.get_data_from_api()["products"]
                 index += 1
             except IndexError:
                 substitutes = []
