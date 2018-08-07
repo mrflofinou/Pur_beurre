@@ -1,14 +1,16 @@
 import json
 
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
 
 from .libs.api_interactions import Substitutes
+from .forms import SignUpForm
 
 
 def index(request):
     """ Home page of Pur Beurre """
-    return render(request, "substitute/index.html", locals())
+    return render(request, "substitute/index.html")
 
 def results(request):
     """ Page with results of a request """
@@ -49,3 +51,20 @@ def details(request, product_id):
             }
             break
     return render(request, "substitute/details.html", context)
+
+def signup(request):
+    """ Page to sign up """
+
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password1")
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect("index")
+    else:
+        form = SignUpForm()
+    context = {"form": form}
+    return render(request, "substitute/signup.html", context)
