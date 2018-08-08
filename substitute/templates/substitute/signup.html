@@ -16,30 +16,33 @@
 
     <section>
         <div class="container">
-            <h3>Création de compte</h3>
+            <h3 class="text-center">Création de compte</h3>
             <br>
-            <form method="post" action="{% url 'substitute:signup' %}">
-                {% csrf_token %}
-                {% for field in form %}
-                    <p>
-                        {{ field.label_tag }}<br>
-                        {{ field }}
-                        {% if field.help_text %}
-                            <small>
-                                {% autoescape off %}
-                                {{ field.help_text }}
-                                {% endautoescape %}
-                            </small>
-                        {% endif %} 
-                        {% for error in field.errors %}
-                            <p style="color: red">
-                                {{ error }}
-                            </p>
-                        {% endfor %}
-                    </p>
-                {% endfor %}
-                <button class="btn btn-primary" type="submit">Inscription</button>
-            </form>
+            <div class="row">
+                <form class="mx-auto" method="post" action="{% url 'signup' %}" style="list-style: none">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <p>
+                            {{ field.label_tag }}<br>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <br>
+                                <small style="color: grey">
+                                    {% autoescape off %}
+                                    {{ field.help_text }}
+                                    {% endautoescape %}
+                                </small>
+                            {% endif %} 
+                            {% for error in field.errors %}
+                                <p style="color: red">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </p>
+                    {% endfor %}
+                    <button class="btn btn-primary" type="submit">Inscription</button>
+                </form>
+            </div>
         </div>
     </section>
 
