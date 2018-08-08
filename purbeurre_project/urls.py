@@ -16,13 +16,17 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 
 from substitute import views
 
 urlpatterns = [
     url(r'^$', views.index, name="index"),
     url(r'^substitute/', include('substitute.urls', namespace="substitute")),
-    url(r'^admin/', admin.site.urls),
+    url(r'^signup/$', views.signup, name="signup"),
+    url(r'^login/$', auth_views.LoginView.as_view(template_name="substitute/login.html"), name="login"),
+    url(r'^logout/$', auth_views.LogoutView.as_view(template_name="substitute/logout.html"), name="logout"),
+    url(r'^admin/', admin.site.urls)
 ]
 
 if settings.DEBUG:
