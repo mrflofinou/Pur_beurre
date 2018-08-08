@@ -51,7 +51,7 @@ h6 {
 }
 
 section {
-  padding: 8rem 0;
+  padding: 3rem 0;
 }
 
 .section-heading {
@@ -178,8 +178,8 @@ header.masthead {
 }
 
 .headertemp {
-  padding-top: 10rem;
-  padding-bottom: calc(10rem - 56px);
+  padding-top: 5rem;
+  padding-bottom: calc(5rem - 56px);
   background-color: #345a61;
   background-position: center center;
   -webkit-background-size: cover;
@@ -333,4 +333,8 @@ header.masthead p {
 
 .btn-primary:active, .btn-primary:focus {
   box-shadow: 0 0 0 0.2rem rgba(196, 85, 37, 0.5) !important;
+}
+
+ul {
+  list-style-type: none
 }
