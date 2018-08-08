@@ -48,19 +48,24 @@
                 <input type="text" name="query" class="form-control form-control-sm" id="navsearch" placeholder="Chercher">
               </form>
             </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#">
-                {% block account %}
-                  <i class="fas fa-lock"></i> Connexion
-                {% endblock %}
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#produits"><img src="{% static 'substitute/img/carotte.png' %}" style="height:20px; width:20px" alt="menu">Mes Produits</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-            </li>
+          
+            {% if not user.is_authenticated %}
+              <li class="nav-item">
+                  <a class="nav-link js-scroll-trigger" href="{% url 'login' %}">
+                    {% block account %}
+                      <i class="fas fa-lock"></i> Connexion
+                    {% endblock %}
+                  </a>
+                </li>
+              {% else %}
+                <li class="nav-item">
+                  <a class="nav-link js-scroll-trigger" href="#produits"><img src="{% static 'substitute/img/carotte.png' %}" style="height:20px; width:20px" alt="menu">Mes Produits</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link js-scroll-trigger" href="{% url 'logout'%}"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                </li> 
+            {% endif %}
+
           </ul>
         </div>
       </div>
