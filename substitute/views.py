@@ -1,5 +1,6 @@
 import json
 
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
@@ -29,9 +30,23 @@ def results(request):
             "id_product": product["code"]
         }
         substitutes_list.append(substitute)
+    paginator = Paginator(substitutes_list, 12)
+    page = request.GET.get("page")
+    
+    try:
+        substitutes_results = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        substitutes_results = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        substitutes_results = paginator.page(paginator.num_pages)
+
     context = {
         "query": query,
-        "substitutes": substitutes_list
+        "substitutes": substitutes_results,
+        "count": len(substitutes_list),
+        'paginate': True
     }
     return render(request, "substitute/results.html", context)
     
