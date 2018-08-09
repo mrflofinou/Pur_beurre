@@ -16,23 +16,46 @@
 
 {% block content %}
 
-<br>
-<h4 class="text-center">Vous pouvez remplacer cet aliment par:</h4>
-<section id="substitutes">
-    <div class="container text-center">
-        <div class="row">
-            {% for substitute in substitutes %}
+<section class="container" id="substitutes">
+    {% if not query %}
+        <p class="text-center" style="font-weight: bold">Vous devez renseigner un aliment</p>
+    {% else %}
+        <p style="font-style: italic">{{ count }} résultats</p>
+        <h4 class="text-center">Vous pouvez remplacer cet aliment par:</h4>
+        <br>
+        <div class="container text-center">
+            <div class="row">
+                {% for substitute in substitutes %}
 
-            <div class="col-sm-4 text-center">
-                <a href="{% url 'substitute:details' product_id=substitute.id_product %}" class="substitute">
-                    <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
-                    <h5>{{ substitute.name }}</h5>
-                </a>
+                <div class="col-sm-4 text-center">
+                    <a href="{% url 'substitute:details' product_id=substitute.id_product %}" class="substitute">
+                        <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
+                        <h5>{{ substitute.name }}</h5>
+                    </a>
+                </div>
+            
+                {% endfor %}
             </div>
-        
-            {% endfor %}
         </div>
-    </div>
+    {% endif %}
+    
+    {% if paginate %}
+        <div class="text-center mt-3">
+            <nav aria-label="">
+            <ul class="pager">
+                {% if substitutes.has_previous %}
+                    <li><a class="btn btn-primary" href="?page={{ substitutes.previous_page_number }}">Précédent</a></li>
+                {% endif %}
+                {% if substitutes.has_next %}
+                    <li><a class="btn btn-primary" href="?page={{ substitutes.next_page_number }}">Suivant</a></li>
+                {% endif %}
+            </ul>
+            </nav>
+        </div>
+    {% endif %}
+
+    
+
 </section>
 
 {% endblock %}
