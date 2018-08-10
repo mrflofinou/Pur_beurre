@@ -51,13 +51,12 @@
           
             {% if not user.is_authenticated %}
               <li class="nav-item">
-                  <a class="nav-link js-scroll-trigger" href="{% url 'login' %}">
-                    {% block account %}
-                      <i class="fas fa-lock"></i> Connexion
-                    {% endblock %}
-                  </a>
+                  <a class="nav-link js-scroll-trigger" href="{% url 'login' %}"><i class="fas fa-lock"></i> Connexion</a>
                 </li>
               {% else %}
+                <li class="nav-item">
+                  <a class="nav-link js-scroll-trigger" href="#"><i class="fas fa-user"></i> Mon Compte</a>
+                </li>
                 <li class="nav-item">
                   <a class="nav-link js-scroll-trigger" href="#produits"><img src="{% static 'substitute/img/carotte.png' %}" style="height:20px; width:20px" alt="menu">Mes Produits</a>
                 </li>
