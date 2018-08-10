@@ -3,6 +3,8 @@ import re
 
 import requests
 
+from . exceptions import NoProductError
+
 class DataApiClient:
     """
     Class to get data of products from the API OpenFoodFacts
@@ -54,17 +56,20 @@ class Substitutes:
 
         data = DataApiClient(query=self.query)
         data_from_api = data.get_data_from_api()["products"]
-        # I've made the choice to select the first product from the results of
-        # the user request, to find the category.
-        product = data_from_api[0]
-        # I choose the last categery of the list 'categories_hieararchy'
-        category_hierarchy = product["categories_hierarchy"]
-        category_extracted = category_hierarchy[-1]
-        # I just want to keep the string after the caracters of the country
-        # ex: "fr:pâte-a-tartiner"
-        category_string = re.search(":(.+)$", category_extracted)
-        category = category_string.group(1)
-        category = category.replace("-", " ")
+        if data_from_api:
+            # I've made the choice to select the first product from the results of
+            # the user request, to find the category.
+            product = data_from_api[0]
+            # I choose the last categery of the list 'categories_hieararchy'
+            category_hierarchy = product["categories_hierarchy"]
+            category_extracted = category_hierarchy[-1]
+            # I just want to keep the string after the caracters of the country
+            # ex: "fr:pâte-a-tartiner"
+            category_string = re.search(":(.+)$", category_extracted)
+            category = category_string.group(1)
+            category = category.replace("-", " ")
+        else:
+            raise NoProductError
         return category
 
     def get_substitutes(self):
