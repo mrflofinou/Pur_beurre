@@ -3,7 +3,7 @@ import re
 
 import requests
 
-from . exceptions import NoProductError
+from .exceptions import NoProductError
 
 class DataApiClient:
     """
@@ -65,7 +65,7 @@ class Substitutes:
             category_extracted = category_hierarchy[-1]
             # I just want to keep the string after the caracters of the country
             # ex: "fr:pâte-a-tartiner"
-            category_string = re.search(":(.+)$", category_extracted)
+            category_string = re.search(r":(.+)$", category_extracted)
             category = category_string.group(1)
             category = category.replace("-", " ")
         else:
