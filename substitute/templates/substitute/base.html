@@ -51,17 +51,17 @@
           
             {% if not user.is_authenticated %}
               <li class="nav-item">
-                  <a class="nav-link js-scroll-trigger" href="{% url 'login' %}"><i class="fas fa-lock"></i> Connexion</a>
+                  <a class="nav-link js-scroll-trigger" id="login" href="{% url 'login' %}"><i class="fas fa-lock"></i> Connexion</a>
                 </li>
               {% else %}
                 <li class="nav-item">
-                  <a class="nav-link js-scroll-trigger" href="#"><i class="fas fa-user"></i> Mon Compte</a>
+                  <a class="nav-link js-scroll-trigger" id="account" href="#"><i class="fas fa-user"></i> Mon Compte</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link js-scroll-trigger" href="#produits"><img src="{% static 'substitute/img/carotte.png' %}" style="height:20px; width:20px" alt="menu">Mes Produits</a>
+                  <a class="nav-link js-scroll-trigger" id="products" href="{% url 'substitute:my_products' %}"><img src="{% static 'substitute/img/carotte.png' %}" style="height:20px; width:20px" alt="menu">Mes Produits</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link js-scroll-trigger" href="{% url 'logout'%}"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                  <a class="nav-link js-scroll-trigger" id="logout" href="{% url 'logout'%}"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
                 </li> 
             {% endif %}
 
@@ -99,6 +99,11 @@
 
     <!-- Custom scripts for this template -->
     <script src="{% static 'substitute/js/creative.min.js' %}"></script>
+
+    <!-- JQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    {% block javascript %}{% endblock  %}
 
   </body>
 

@@ -19,7 +19,7 @@
             <h3 class="text-center">Création de compte</h3>
             <br>
             <div class="row">
-                <form class="mx-auto" method="post" action="{% url 'signup' %}" style="list-style: none">
+                <form class="mx-auto" id="signupform" method="post" action="{% url 'signup' %}" style="list-style: none">
                     {% csrf_token %}
                     {% for field in form %}
                         <p>
@@ -40,7 +40,7 @@
                             {% endfor %}
                         </p>
                     {% endfor %}
-                    <button class="btn btn-primary" type="submit">Inscription</button>
+                    <button class="btn btn-primary" id="signupsubmit" type="submit">Inscription</button>
                 </form>
             </div>
         </div>

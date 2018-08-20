@@ -28,11 +28,11 @@
                     </div>
                 </div>
             {% endfor %}
-            <button class="btn btn-primary" type="submit">Login</button>
+            <button class="btn btn-primary" id="submitlogin" type="submit">Login</button>
         </form>
         <br>
         <p>
-            Vous n'avez pas de compte ? <a href="{% url 'signup' %}"> Cliquez ici</a>
+            Vous n'avez pas de compte ? <a id="signup" href="{% url 'signup' %}"> Cliquez ici</a>
         </p>
     </div>
 </section>
