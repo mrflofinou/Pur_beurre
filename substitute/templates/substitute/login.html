@@ -16,7 +16,7 @@
         <h3>Connexion</h3>
         <br>
         {% if form.errors %}
-            <p style="color: red; font-weight: bold">Le nom d'utilisateur et le mot de passe ne correspondent pas.</p>
+            <p id="login_error" style="color: red; font-weight: bold">Le nom d'utilisateur et le mot de passe ne correspondent pas.</p>
         {% endif %}
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
