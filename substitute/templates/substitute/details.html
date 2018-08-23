@@ -49,9 +49,16 @@
             </div>
         </div>
         {% endif %}
-        <div class="row mt-2">
-            <button id="save" class=" mx-auto btn btn-primary">ENREGISTRER CE PRODUIT</button>
-        </div>
+        
+        {% if already_saved %}
+            <div class="row mt-2">
+                <button class=" mx-auto btn btn-success" disabled>CE PRODUIT EST ENREGISTRÉ DANS VOTRE ESPACE</button>
+            </div>
+        {% else %}
+            <div class="row mt-2">
+                <button id="save" class=" mx-auto btn btn-primary">ENREGISTRER CE PRODUIT</button>
+            </div>
+        {% endif %}
     </div>
 </section>
 
@@ -76,15 +83,16 @@
                     success: function (data) {
                     if ((data.new_product) || (data.product_exists) ) {
                         alert("Le produit à bien été enregistré dans votre espace personnel");
+                        $("#save").toggleClass("btn-primary").toggleClass("btn-success").attr("disabled", true);
+                        $("#save").text("CE PRODUIT EST ENREGISTRÉ DANS VOTRE ESPACE")
                     }
-                    else{
-                        alert("Un problème est survenue veuillez recommencer")
+                    else if(data.error){
+                        alert("Un problème est survenu veuillez recommencer");
                         }
                     }
                     }); 
             });
         </script>
-
     {% else %}
         <script>
             $("#save").click(function () {
