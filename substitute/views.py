@@ -3,7 +3,7 @@ import re
 import requests
 from django.db import transaction, IntegrityError
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
@@ -68,6 +68,17 @@ def results(request):
     
 def details(request, product_id):
     """ Page with details of a selected substitute """
+    
+    context = {}
+
+    # I check if a product is already saved by a user.
+    # The button to save will be disable if the relation alreday exists between
+    # a user and a product.
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user)
+        existing_relation = user.products.filter(code=product_id).exists()
+    else:
+        existing_relation = False
 
     try:
         # I use substitues stored in the session
@@ -78,27 +89,32 @@ def details(request, product_id):
                     "name": substitute.get("product_name_fr"),
                     "nutriscore": substitute.get("nutrition_grade_fr", ""),
                     "picture": substitute.get("image_url"),
-                    "ingredients": substitute.get("ingredients_text_with_allergens_fr"),
+                    "ingredients": substitute.get("ingredients_text_fr"),
                     "nutrition_picture": substitute.get("image_nutrition_url", ""),
-                    "stores": substitute.get("stores")
+                    "stores": substitute.get("stores"),
+                    "already_saved": existing_relation
                 }
                 break
+        if not context:
+            raise KeyError
     except KeyError:
-        # When a session expired, the list of substitutes is lost.
+        # When a session expired or didn't exists before,
+        # the list of substitutes is lost or not exist.
         # exceptionally I make a request to the API to find a product when the
-        # sesseion had expired after a logout of a user.
-        # To have data of one product, the request to the API is different
+        # sesseion don't have substitue list.
+        # To have data of one product, the request to the API is different.
         api_request = requests.get("https://world.openfoodfacts.org/api/v0/product/" + f"{product_id}" + "json")
         product_data = api_request.json()
         product = product_data["product"]
         context = {
-            "code": substitute["code"],
+            "code": product["code"],
             "name": product.get("product_name_fr"),
             "nutriscore": product.get("nutrition_grade_fr", ""),
             "picture": product.get("image_url"),
             "ingredients": product.get("ingredients_text_with_allergens_fr"),
             "nutrition_picture": product.get("image_nutrition_url", ""),
-            "stores": product.get("stores")
+            "stores": product.get("stores"),
+            "already_saved": existing_relation
         }
 
     return render(request, "substitute/details.html", context)
@@ -124,36 +140,53 @@ def signup(request):
 def save_product(request):
     """ To save a product in a user account """
 
+    user = User.objects.get(username=request.user)
+    if not Product.objects.filter(code=request.GET.get("code")).exists():
+        try:
+            with transaction.atomic():
+                product = Product(
+                    code = request.GET.get("code", ""),
+                    name = request.GET.get("name", ""),
+                    nutriscore = request.GET.get("nutriscore", ""),
+                    url_picture = request.GET.get("picture", ""),
+                    ingredients = request.GET.get("ingredients", ""),
+                    url_nutrition = request.GET.get("nutrition_picture", ""),
+                    stores = request.GET.get("stores", "")
+                )
+                product.save()
+            data = {
+                'new_product': True
+            }
+        except IntegrityError:
+            data = {
+                'error': True
+            }
+    else:
+        try:
+            with transaction.atomic():
+                product = Product.objects.get(code=request.GET.get("code"))
+                data = {
+                    'product_exists': True
+                }
+        except IntegrityError:
+            data = {
+                'error': True
+            }                
+
     try:
         with transaction.atomic():
-            user = User.objects.get(username=request.user)
-            product = Product(
-                code = request.GET.get("code", ""),
-                name = request.GET.get("name", ""),
-                nutriscore = request.GET["nutriscore"],
-                url_picture = request.GET.get("picture", ""),
-                ingredients = request.GET.get("ingredients", ""),
-                url_nutrition = request.GET.get("nutrition_picture", ""),
-                stores = request.GET.get("stores", "")
-            )
-            product.save()
             product.users.add(user)
-            data = {
-                'new_product': Product.objects.filter(code=request.GET.get("code")).exists()
-            }
     except IntegrityError:
-        with transaction.atomic():
-            product = Product.objects.get(code=request.GET.get("code"))
-            product.users.add(user)
-            data = {
-                'product_exists': True
-            }
+        data = {
+            'error': True
+        }                
+
     return JsonResponse(data)
 
-def my_products(request):
+def my_products(request): # Faire une fonction helper ?
     """ Page to display the products saved by users """
 
-    user = User.objects.get(username=request.user)
+    user = get_object_or_404(User, username=request.user)
     products = user.products.all()
     products_list = []
     for product in products:
@@ -180,7 +213,7 @@ def my_products(request):
         "substitutes": products_list,
         "count": len(products_list),
         'paginate': True,
-         "my_products": True
+        "my_products": True
     }
 
     return render(request, "substitute/results.html", context) 
