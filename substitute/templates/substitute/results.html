@@ -20,9 +20,14 @@
     {% if not query %}
         <p class="text-center" style="font-weight: bold">Vous devez renseigner un aliment</p>
     {% elif not substitutes %}
-        <p class="text-center" style="font-weight: bold">Nous n'avons pas trouvé de substituts saints pour votre requête</p>
+        <p id="count" style="font-style: italic">{{ count }} résultats</p>
+        {% if my_products %}
+            <p class="text-center" style="font-weight: bold">Vous n'avez pas encore enregistré de produits</p>
+        {% else %}
+            <p class="text-center" style="font-weight: bold">Nous n'avons pas trouvé de substituts saints pour votre requête</p>
+        {% endif %}
     {% else %}
-        <p style="font-style: italic">{{ count }} résultats</p>
+        <p id="count" style="font-style: italic">{{ count }} résultats</p>
         {% if not my_products %}
             <h4 class="text-center">Vous pouvez remplacer cet aliment par:</h4>
         {% endif %}
@@ -36,6 +41,9 @@
                         <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
                         <h5>{{ substitute.name }}</h5>
                     </a>
+                    {% if my_products %}
+                       <a href="{% url 'substitute:delete_product' product_id=substitute.id_product %}"><button id="delete_product" class="mx-auto mb-3 btn">SUPPRIMER</button></a>
+                    {% endif %}
                 </div>
             
                 {% endfor %}
@@ -61,3 +69,14 @@
 </section>
 
 {% endblock %}
+
+{% comment %} {% block javascript %}
+    <script>
+    $("#delete_product").click(function () {
+            var conf = confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")
+            if (conf===true){
+                $("delete_product").attr("href", "{% url 'substitute:delete_product' product_id=substitute.id_product %}")
+            }
+        });
+    </script>
+{% endblock %} {% endcomment %}
