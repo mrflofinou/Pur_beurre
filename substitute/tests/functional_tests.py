@@ -15,16 +15,18 @@ class FunctionalTest(LiveServerTestCase):
         self.driver.get(self.live_server_url)
         self.driver.maximize_window()
         self.wait = ui.WebDriverWait(self.driver, 1000)
-        self.user = User.objects.create_user("testuser", "testuser@email.com", "testpswd")
+        self.user = User.objects.create_user("testuser",
+                                            "testuser@email.com",
+                                            "testpswd")
 
     def tearDown(self):
         self.driver.quit()
     
-    def user_makes_search(self):
+    def user_makes_search(self, query):
         """ User path to search the substitute of a product """
         element = self.driver.find_element_by_id("foodsearch")
         submit = self.driver.find_element_by_id("submit")
-        element.send_keys("nutella")
+        element.send_keys(query)
         submit.click()
         self.wait.until(ec.presence_of_element_located((By.ID, "substitutes")))
     
@@ -68,26 +70,32 @@ class FunctionalTest(LiveServerTestCase):
         self.assertIn("Pur Beurre", self.driver.title)
     
     def test_results_page_returns_200(self):
-        self.user_makes_search()
-        res = Client().get(f'{self.driver.current_url}') 
+        self.user_makes_search("nutella")
+        res = Client().get(f'{self.driver.current_url}')
         self.assertEqual(res.status_code, 200)
 
     def test_results_page_url_contains_query(self):
-        self.user_makes_search()
+        self.user_makes_search("nutella")
         self.assertIn(
                     "query=nutella",
                     self.driver.current_url,
                     )
     
+    def test_results_page_returns_200_if_no_substiutes(self):
+        self.user_makes_search("oreo")
+        count_element = self.driver.find_element_by_id("count")
+        res = Client().get(f'{self.driver.current_url}')
+        self.assertEqual(count_element.text, "0 résultats") 
+        self.assertEqual(res.status_code, 200)
+    
     def test_results_page_header_title_is_the_query(self):
-        self.user_makes_search()
+        self.user_makes_search("nutella")
         header_title = self.driver.find_element_by_id("headerTitle")
         header_title = header_title.text
         self.assertEqual(header_title, "nutella")
-
     
     def test_details_page_returns_200_and_contains_informations(self):
-        self.user_makes_search()
+        self.user_makes_search("nutella")
         substitute = self.driver.find_element_by_css_selector("a.substitute")
         substitute.click()
         self.wait.until(ec.presence_of_element_located((By.ID, "details")))
@@ -95,7 +103,7 @@ class FunctionalTest(LiveServerTestCase):
         product_picture_url = product_picture.get_attribute("src")
         nutriscore_picture = self.driver.find_element_by_id("nutriscore-picture")
         nutriscore_picture_url = nutriscore_picture.get_attribute("src")
-        nutrition_picture = self.driver.find_element_by_id("nutriscore-picture")
+        nutrition_picture = self.driver.find_element_by_id("nutriscore-picture")# ERREUR d'ID !
         nutrition_picture_url = nutrition_picture.get_attribute("src")
         ingredients_list = self.driver.find_element_by_id("ingredients")
         ingredients_list_text = ingredients_list.text
@@ -142,7 +150,7 @@ class FunctionalTest(LiveServerTestCase):
         self.user_login(username="testuser",
                         password="testpswd",
                         waiting="account")
-        self.assertEqual(self.driver.current_url, self.live_server_url + "/")
+        self.assertEqual(self.driver.current_url, self.live_server_url + "/") # Tester / urls django
 
     def test_login_wrong_username(self):
         self.user_login(username="wrongusername",
@@ -173,7 +181,7 @@ class FunctionalTest(LiveServerTestCase):
         self.user_login(username="testuser",
                         password="testpswd",
                         waiting="account")
-        self.user_makes_search()
+        self.user_makes_search("nutella")
         substitute = self.driver.find_element_by_css_selector("a.substitute")
         substitute.click()
         self.wait.until(ec.presence_of_element_located((By.ID, "details")))
