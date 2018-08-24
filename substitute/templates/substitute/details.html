@@ -67,7 +67,8 @@
 {% block javascript %}
     {% if user.is_authenticated %}
         <script>
-        $("#save").click(function () {
+        $(function() {
+            $("#save").click(function () {
                 $.ajax({
                     url: '{% url "substitute:save_product" %}',
                     data: {
@@ -75,9 +76,6 @@
                     'name': '{{name}}',
                     'nutriscore': '{{nutriscore}}',
                     'picture': '{{picture}}',
-                    'ingredients': '{{ingredients}}',
-                    'nutrition_picture': '{{nutrition_picture}}',
-                    'stores': '{{stores}}'
                     },
                     dataType: 'json',
                     success: function (data) {
@@ -90,14 +88,18 @@
                         alert("Un problème est survenu veuillez recommencer");
                         }
                     }
-                    }); 
+                }); 
             });
+        });
+
         </script>
     {% else %}
         <script>
-            $("#save").click(function () {
-                alert("Vous devez être connecté pour pouvoir enregistrer un produit");
+            $(function(){
+                $("#save").click(function () {
+                    alert("Vous devez être connecté pour pouvoir enregistrer un produit");
                 });
-            </script>
+            });
+        </script>
     {% endif %}
 {% endblock %}
