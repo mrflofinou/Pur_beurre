@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from .forms import SignUpForm
 from .models import Product
 from .libs.exceptions import NoProductError
-from .libs.api_interactions import Substitutes
+from .libs.api_interactions import Substitutes, DataApiClient
 
 
 def index(request):
@@ -47,7 +47,7 @@ def results(request):
             # If page is not an integer, deliver first page.
             substitutes_results = paginator.page(1)
         except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
+            # If page is out of range (e.g. 9999), deliver last page of results
             substitutes_results = paginator.page(paginator.num_pages)
 
         context = {
@@ -69,8 +69,6 @@ def results(request):
 def details(request, product_id):
     """ Page with details of a selected substitute """
     
-    context = {}
-
     # I check if a product is already saved by a user.
     # The button to save will be disable if the relation alreday exists between
     # a user and a product.
@@ -81,31 +79,28 @@ def details(request, product_id):
         existing_relation = False
 
     try:
-        # I use substitues stored in the session
-        for substitute in request.session["substitutes"]:
-            if substitute["code"] == product_id:
-                context = {
-                    "code": substitute["code"],
-                    "name": substitute.get("product_name_fr"),
-                    "nutriscore": substitute.get("nutrition_grade_fr", ""),
-                    "picture": substitute.get("image_url"),
-                    "ingredients": substitute.get("ingredients_text_fr"),
-                    "nutrition_picture": substitute.get("image_nutrition_url", ""),
-                    "stores": substitute.get("stores"),
-                    "already_saved": existing_relation
-                }
-                break
-        if not context:
+        selected_product = [substitute for substitute in request.session["substitutes"] if substitute["code"] == product_id]
+        if selected_product:
+            substitute = selected_product[0]
+            context = {
+                "code": substitute["code"],
+                "name": substitute.get("product_name_fr"),
+                "nutriscore": substitute.get("nutrition_grade_fr", ""),
+                "picture": substitute.get("image_url"),
+                "ingredients": substitute.get("ingredients_text_with_allergens_fr"),
+                "nutrition_picture": substitute.get("image_nutrition_url", ""),
+                "stores": substitute.get("stores"),
+                "already_saved": existing_relation
+            }
+        else:
             raise KeyError
     except KeyError:
         # When a session expired or didn't exists before,
         # the list of substitutes is lost or not exist.
         # exceptionally I make a request to the API to find a product when the
-        # sesseion don't have substitue list.
-        # To have data of one product, the request to the API is different.
-        api_request = requests.get("https://world.openfoodfacts.org/api/v0/product/" + f"{product_id}" + "json")
-        product_data = api_request.json()
-        product = product_data["product"]
+        # sesseion don't have substitue list or if the product isn't in it.
+        api_request = DataApiClient(product_id = product_id)
+        product = api_request.get_unique_product_from_api()
         context = {
             "code": product["code"],
             "name": product.get("product_name_fr"),
@@ -141,6 +136,7 @@ def save_product(request):
     """ To save a product in a user account """
 
     user = User.objects.get(username=request.user)
+    # I check if the product is already in the data base or not.
     if not Product.objects.filter(code=request.GET.get("code")).exists():
         try:
             with transaction.atomic():
@@ -149,9 +145,6 @@ def save_product(request):
                     name = request.GET.get("name", ""),
                     nutriscore = request.GET.get("nutriscore", ""),
                     url_picture = request.GET.get("picture", ""),
-                    ingredients = request.GET.get("ingredients", ""),
-                    url_nutrition = request.GET.get("nutrition_picture", ""),
-                    stores = request.GET.get("stores", "")
                 )
                 product.save()
             data = {
@@ -182,6 +175,25 @@ def save_product(request):
         }                
 
     return JsonResponse(data)
+
+@transaction.atomic
+def delete_product(request, product_id):
+    """ To delete a product from a user account """
+
+    user = User.objects.get(username=request.user)
+    try:
+        with transaction.atomic():
+            product = Product.objects.get(code=product_id)
+            product.users.remove(user)
+            data = {
+                'delete': True
+            }
+    except:
+        data = {
+            'error': True
+        }  
+
+    return render(request, "substitute/results.html")
 
 def my_products(request): # Faire une fonction helper ?
     """ Page to display the products saved by users """
@@ -216,4 +228,13 @@ def my_products(request): # Faire une fonction helper ?
         "my_products": True
     }
 
-    return render(request, "substitute/results.html", context) 
+    return render(request, "substitute/results.html", context)
+
+def my_account(request):
+    user = get_object_or_404(User, username=request.user)
+    context = {
+        "title": "Mon compte",
+        "username": user.username,
+        "email": user.email
+    }
+    return render(request, "substitute/account.html", context)
