@@ -14,6 +14,7 @@ class DataApiClient:
         self.query = kwargs.get("query", "")
         self.category = kwargs.get("category", "")
         self.nutriscore = kwargs.get("nutriscore", "")
+        self.product_id = kwargs.get("product_id", "")
 
     def get_data_from_api(self):
         """
@@ -41,6 +42,14 @@ class DataApiClient:
         data = search.json()
         # return a list of dictionaries. Every product is a dictionary
         return data
+    
+    def get_unique_product_from_api(self):
+        api_request = requests.get(
+                            "https://world.openfoodfacts.org/api/v0/product/"
+                            + f"{self.product_id}" + "json")
+        product_data = api_request.json()
+        product = product_data["product"]
+        return product
 
 
 class Substitutes:
@@ -57,8 +66,8 @@ class Substitutes:
         data = DataApiClient(query=self.query)
         data_from_api = data.get_data_from_api()["products"]
         if data_from_api:
-            # I've made the choice to select the first product from the results of
-            # the user request, to find the category.
+            # I've made the choice to select the first product fromthe results
+            # of the user request, to find the category.
             product = data_from_api[0]
             # I choose the last categery of the list 'categories_hieararchy'
             category_hierarchy = product["categories_hierarchy"]
