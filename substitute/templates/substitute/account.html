@@ -1,0 +1,35 @@
+{% extends "substitute/base.html" %}
+
+{% block title %}
+
+    {{ title }}
+
+{% endblock %}
+
+
+{% block header %}
+
+    {% include 'substitute/header.html' with title=title %}
+
+{% endblock %}
+
+{% block content %}
+
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="offset-md-4">
+                    <div class="row">
+                        <h4 class="col-md-6 text-right">Username:</h4>
+                        <h4 class="col-md-6"> {{ username }}</h4>
+                    </div>
+                    <div class="row">
+                            <h4 class="col-md-6 text-right">Email:</h4>
+                            <h4 class="col-md-6"> {{ email }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock  %}
