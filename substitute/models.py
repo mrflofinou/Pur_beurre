@@ -7,9 +7,6 @@ class Product(Model):
     name = CharField("nom", max_length=200)
     nutriscore = CharField("nutriscore", max_length=10, null=True)
     url_picture = CharField("image", max_length=200, null=True)
-    ingredients = CharField("liste d'ingredients", max_length=1000, null=True)
-    url_nutrition = CharField("valeurs nutritionnelles", max_length=200, null=True)
-    stores = CharField("magasins", max_length=200, null=True)
     users = ManyToManyField(User, related_name="products")
 
     class Meta:
