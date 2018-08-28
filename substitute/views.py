@@ -1,4 +1,5 @@
 import re
+import html
 
 import requests
 from django.db import transaction, IntegrityError
@@ -33,7 +34,7 @@ def results(request):
         for product in substitutes_request:
             substitute = {
                 "name": product.get("product_name_fr"),
-                "nutriscore": product["nutrition_grade_fr"],
+                "nutriscore": product.get("nutrition_grade_fr", ""),
                 "picture": product.get("image_url", ""),
                 "id_product": product["code"]
             }
@@ -79,7 +80,9 @@ def details(request, product_id):
         existing_relation = False
 
     try:
-        selected_product = [substitute for substitute in request.session["substitutes"] if substitute["code"] == product_id]
+        selected_product = [substitute
+                            for substitute in request.session["substitutes"]
+                            if substitute["code"] == product_id]
         if selected_product:
             substitute = selected_product[0]
             context = {
@@ -87,7 +90,7 @@ def details(request, product_id):
                 "name": substitute.get("product_name_fr"),
                 "nutriscore": substitute.get("nutrition_grade_fr", ""),
                 "picture": substitute.get("image_url"),
-                "ingredients": substitute.get("ingredients_text_with_allergens_fr"),
+                "ingredients": substitute.get("ingredients_text_with_allergens_fr", ""),
                 "nutrition_picture": substitute.get("image_nutrition_url", ""),
                 "stores": substitute.get("stores"),
                 "already_saved": existing_relation
@@ -142,28 +145,29 @@ def save_product(request):
             with transaction.atomic():
                 product = Product(
                     code = request.GET.get("code", ""),
-                    name = request.GET.get("name", ""),
+                    # To decode specials strings
+                    name = html.unescape(request.GET.get("name", "")),
                     nutriscore = request.GET.get("nutriscore", ""),
                     url_picture = request.GET.get("picture", ""),
                 )
                 product.save()
             data = {
-                'new_product': True
+                "new_product": True
             }
         except IntegrityError:
             data = {
-                'error': True
+                "error": True
             }
     else:
         try:
             with transaction.atomic():
                 product = Product.objects.get(code=request.GET.get("code"))
                 data = {
-                    'product_exists': True
+                    "product_exists": True
                 }
         except IntegrityError:
             data = {
-                'error': True
+                "error": True
             }                
 
     try:
@@ -171,35 +175,35 @@ def save_product(request):
             product.users.add(user)
     except IntegrityError:
         data = {
-            'error': True
+            "error": True
         }                
 
     return JsonResponse(data)
 
 @transaction.atomic
-def delete_product(request, product_id):
-    """ To delete a product from a user account """
+def delete_product(request):
+    """ To delete a product from an user account """
 
     user = User.objects.get(username=request.user)
     try:
         with transaction.atomic():
-            product = Product.objects.get(code=product_id)
+            product = Product.objects.get(code=request.GET.get("code"))
             product.users.remove(user)
             data = {
-                'delete': True
+                "delete": True,
             }
     except:
         data = {
-            'error': True
-        }  
+            "error": True
+        }    
 
-    return render(request, "substitute/results.html")
+    return JsonResponse(data)
 
 def my_products(request): # Faire une fonction helper ?
     """ Page to display the products saved by users """
 
     user = get_object_or_404(User, username=request.user)
-    products = user.products.all()
+    products = user.products.all().order_by("-id")
     products_list = []
     for product in products:
         my_product = {
@@ -212,17 +216,17 @@ def my_products(request): # Faire une fonction helper ?
     paginator = Paginator(products_list, 12)
     page = request.GET.get("page")
     try:
-        products_list = paginator.page(page)
+        products_page = paginator.page(page)
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
-        products_list = paginator.page(1)
+        products_page = paginator.page(1)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
-        products_list = paginator.page(paginator.num_pages)
+        products_page = paginator.page(paginator.num_pages)
 
     context = {
         "query": "Mes produits",
-        "substitutes": products_list,
+        "substitutes": products_page,
         "count": len(products_list),
         'paginate': True,
         "my_products": True
@@ -238,3 +242,40 @@ def my_account(request):
         "email": user.email
     }
     return render(request, "substitute/account.html", context)
+
+
+
+
+
+###############################################################################
+#                                                                             #
+############################## HELPER FUNCTION ################################
+#                                                                             #
+###############################################################################
+
+# def data_display(request, products):
+#     """
+#     This function help to get data from data base to display products from an
+#     user account
+#     """
+#     products_list = []
+#     for product in products:
+#         my_product = {
+#             "name": product.name,
+#             "nutriscore": product.nutriscore,
+#             "picture": product.url_picture,
+#             "id_product": product.code,
+#         }
+#         products_list.append(my_product)
+#     paginator = Paginator(products_list, 12)
+#     page = request.GET.get("page")
+#     try:
+#         products_page = paginator.page(page)
+#     except PageNotAnInteger:
+#         # If page is not an integer, deliver first page.
+#         products_page = paginator.page(1)
+#     except EmptyPage:
+#         # If page is out of range (e.g. 9999), deliver last page of results.
+#         products_page = paginator.page(paginator.num_pages)
+
+#     return products_page, len(products_list)    
