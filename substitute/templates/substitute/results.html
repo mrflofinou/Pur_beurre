@@ -35,48 +35,79 @@
         <div class="container text-center">
             <div class="row">
                 {% for substitute in substitutes %}
-
-                <div class="col-sm-4 text-center">
-                    <a href="{% url 'substitute:details' product_id=substitute.id_product %}" class="substitute">
-                        <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
-                        <h5>{{ substitute.name }}</h5>
-                    </a>
-                    {% if my_products %}
-                       <a href="{% url 'substitute:delete_product' product_id=substitute.id_product %}"><button id="delete_product" class="mx-auto mb-3 btn">SUPPRIMER</button></a>
-                    {% endif %}
-                </div>
-            
+                    <div class="col-sm-4 text-center">
+                        <a href="{% url 'substitute:details' product_id=substitute.id_product %}" class="substitute">
+                            <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
+                            <h5>{{ substitute.name }}</h5>
+                        </a>
+                        {% if my_products %}
+                            <button id="{{ substitute.id_product }}" class="delete_product mx-auto mb-3 btn">SUPPRIMER</button>
+                        {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         </div>
     {% endif %}
     
     {% if paginate %}
-        <div class="mt-3">
-            <nav aria-label="page navigation">
-                <ul class="pagination">
-                    {% if substitutes.has_previous %}
-                        <li><a class="btn btn-primary mx-1" href="/substitute/?query={{ query }}&page={{ substitutes.previous_page_number }}">Précédent</a></li>
-                    {% endif %}
-                    {% if substitutes.has_next %}
-                        <li><a class="btn btn-primary mx-1" href="/substitute/?query={{ query }}&page={{ substitutes.next_page_number }}">Suivant</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+        {% if my_products %}
+            <div class="mt-3">
+                <nav aria-label="page navigation">
+                    <ul class="pagination">
+                        {% if substitutes.has_previous %}
+                            <li><a class="btn btn-primary mx-1" href="/substitute/my_products/?page={{ substitutes.previous_page_number }}">Précédent</a></li>
+                        {% endif %}
+                        {% if substitutes.has_next %}
+                            <li><a class="btn btn-primary mx-1" href="/substitute/my_products/?page={{ substitutes.next_page_number }}">Suivant</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% else %}
+            <div class="mt-3">
+                <nav aria-label="page navigation">
+                    <ul class="pagination">
+                        {% if substitutes.has_previous %}
+                            <li><a class="btn btn-primary mx-1" href="/substitute/?query={{ query }}&page={{ substitutes.previous_page_number }}">Précédent</a></li>
+                        {% endif %}
+                        {% if substitutes.has_next %}
+                            <li><a class="btn btn-primary mx-1" href="/substitute/?query={{ query }}&page={{ substitutes.next_page_number }}">Suivant</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
     {% endif %}
-
 </section>
-
 {% endblock %}
 
-{% comment %} {% block javascript %}
-    <script>
-    $("#delete_product").click(function () {
-            var conf = confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")
-            if (conf===true){
-                $("delete_product").attr("href", "{% url 'substitute:delete_product' product_id=substitute.id_product %}")
-            }
+{% block javascript %}
+<script>
+    $(function() {
+        var button_list = $(".delete_product");
+        button_list.each(function(){
+            $(this).click(function () {
+                var conf = confirm("Êtes-vous sûr de vouloir supprimer ce produit ?");
+                if (conf == true){
+                    $.ajax({
+                        url: '{% url "substitute:delete_product" %}',
+                        data: {
+                        'code': this.id,
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                        if (data.delete) {
+                            alert("Le produit à bien été supprimer de votre espace personnel");
+                            window.location.reload();
+                        }
+                        else if(data.error){
+                            alert("Un problème est survenu veuillez recommencer");
+                            }
+                        }
+                    }); 
+                };
+            });
         });
-    </script>
-{% endblock %} {% endcomment %}
+    });
+</script>
+{% endblock %}
