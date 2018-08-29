@@ -146,6 +146,42 @@ class FunctionalTest(LiveServerTestCase):
         error = self.driver.find_element_by_class_name("error")
         self.assertEqual(error.text, "Les deux mots de passe ne correspondent pas.")
 
+    def test_signup_password_looks_like_username(self):
+        self.user_signup(username="Fiflo",
+                        email="Fiflo@email.com",
+                        password1="fiflo0102",
+                        password2="fiflo0102")
+        self.wait.until(ec.presence_of_element_located((By.CLASS_NAME, "error")))
+        error = self.driver.find_element_by_class_name("error")
+        self.assertEqual(error.text, "Le mot de passe est trop semblable au champ « nom d'utilisateur ».")
+    
+    def test_signup_password_too_short(self):
+        self.user_signup(username="Fiflo",
+                        email="Fiflo@email.com",
+                        password1="bidule",
+                        password2="bidule")
+        self.wait.until(ec.presence_of_element_located((By.CLASS_NAME, "error")))
+        error = self.driver.find_element_by_class_name("error")
+        self.assertEqual(error.text, "Ce mot de passe est trop court. Il doit contenir au minimum 8 caractères.")
+
+    def test_signup_password_only_numerict(self):
+        self.user_signup(username="Fiflo",
+                        email="Fiflo@email.com",
+                        password1="13243546",
+                        password2="13243546")
+        self.wait.until(ec.presence_of_element_located((By.CLASS_NAME, "error")))
+        error = self.driver.find_element_by_class_name("error")
+        self.assertEqual(error.text, "Ce mot de passe est entièrement numérique.")
+    
+    def test_signup_password_too_mainstram(self):
+        self.user_signup(username="Fiflo",
+                        email="Fiflo@email.com",
+                        password1="password",
+                        password2="password")
+        self.wait.until(ec.presence_of_element_located((By.CLASS_NAME, "error")))
+        error = self.driver.find_element_by_class_name("error")
+        self.assertEqual(error.text, "Ce mot de passe est trop courant.")
+
     def test_login(self):
         self.user_login(username="testuser",
                         password="testpswd",
