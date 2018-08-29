@@ -66,7 +66,7 @@ def results(request):
         }
 
     return render(request, "substitute/results.html", context)    
-    
+
 def details(request, product_id):
     """ Page with details of a selected substitute """
     
@@ -117,66 +117,49 @@ def details(request, product_id):
 
     return render(request, "substitute/details.html", context)
 
-def signup(request):
-    """ Page to sign up """
-
-    if request.method == "POST":
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password1")
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            return redirect("index")
-    else:
-        form = SignUpForm()
-    context = {"form": form}
-    return render(request, "substitute/signup.html", context)
-
 @transaction.atomic
 def save_product(request):
     """ To save a product in a user account """
-
-    user = User.objects.get(username=request.user)
-    # I check if the product is already in the data base or not.
-    if not Product.objects.filter(code=request.GET.get("code")).exists():
-        try:
-            with transaction.atomic():
-                product = Product(
-                    code = request.GET.get("code", ""),
-                    # To decode specials strings
-                    name = html.unescape(request.GET.get("name", "")),
-                    nutriscore = request.GET.get("nutriscore", ""),
-                    url_picture = request.GET.get("picture", ""),
-                )
-                product.save()
-            data = {
-                "new_product": True
-            }
-        except IntegrityError:
-            data = {
-                "error": True
-            }
-    else:
-        try:
-            with transaction.atomic():
-                product = Product.objects.get(code=request.GET.get("code"))
+    if request.method == "POST":
+        user = User.objects.get(username=request.user)
+        # I check if the product is already in the data base or not.
+        if not Product.objects.filter(code=request.GET.get("code")).exists():
+            try:
+                with transaction.atomic():
+                    product = Product(
+                        code = request.POST.get("code", ""),
+                        # To decode specials strings
+                        name = html.unescape(request.POST.get("name", "")),
+                        nutriscore = request.POST.get("nutriscore", ""),
+                        url_picture = request.POST.get("picture", ""),
+                    )
+                    product.save()
                 data = {
-                    "product_exists": True
+                    "new_product": True
                 }
+            except IntegrityError:
+                data = {
+                    "error": True
+                }
+        else:
+            try:
+                with transaction.atomic():
+                    product = Product.objects.get(code=request.GET.get("code"))
+                    data = {
+                        "product_exists": True
+                    }
+            except IntegrityError:
+                data = {
+                    "error": True
+                }                
+
+        try:
+            with transaction.atomic():
+                product.users.add(user)
         except IntegrityError:
             data = {
                 "error": True
             }                
-
-    try:
-        with transaction.atomic():
-            product.users.add(user)
-    except IntegrityError:
-        data = {
-            "error": True
-        }                
 
     return JsonResponse(data)
 
@@ -184,18 +167,19 @@ def save_product(request):
 def delete_product(request):
     """ To delete a product from an user account """
 
-    user = User.objects.get(username=request.user)
-    try:
-        with transaction.atomic():
-            product = Product.objects.get(code=request.GET.get("code"))
-            product.users.remove(user)
+    if request.method == 'POST':
+        user = User.objects.get(username=request.user)
+        try:
+            with transaction.atomic():
+                product = Product.objects.get(code=request.POST.get("code"))
+                product.users.remove(user)
+                data = {
+                    "delete": True,
+                }
+        except:
             data = {
-                "delete": True,
-            }
-    except:
-        data = {
-            "error": True
-        }    
+                "error": True
+            }    
 
     return JsonResponse(data)
 
@@ -233,6 +217,23 @@ def my_products(request): # Faire une fonction helper ?
     }
 
     return render(request, "substitute/results.html", context)
+
+def signup(request):
+    """ Page to sign up """
+
+    if request.method == "POST":
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password1")
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect("index")
+    else:
+        form = SignUpForm()
+    context = {"form": form}
+    return render(request, "substitute/signup.html", context)
 
 def my_account(request):
     user = get_object_or_404(User, username=request.user)
