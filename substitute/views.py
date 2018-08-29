@@ -3,7 +3,7 @@ import html
 
 import requests
 from django.db import transaction, IntegrityError
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth import authenticate, login
@@ -121,7 +121,7 @@ def details(request, product_id):
 def save_product(request):
     """ To save a product in a user account """
     if request.method == "POST":
-        user = User.objects.get(username=request.user)
+        user = get_object_or_404(User, username=request.user)
         # I check if the product is already in the data base or not.
         if not Product.objects.filter(code=request.GET.get("code")).exists():
             try:
@@ -160,6 +160,8 @@ def save_product(request):
             data = {
                 "error": True
             }                
+    else:
+        raise Http404("Cette page n'est pas excessible")
 
     return JsonResponse(data)
 
@@ -168,7 +170,7 @@ def delete_product(request):
     """ To delete a product from an user account """
 
     if request.method == 'POST':
-        user = User.objects.get(username=request.user)
+        user = get_object_or_404(User, username=request.user)
         try:
             with transaction.atomic():
                 product = Product.objects.get(code=request.POST.get("code"))
@@ -179,7 +181,9 @@ def delete_product(request):
         except:
             data = {
                 "error": True
-            }    
+            }
+    else:
+        raise Http404("Cette page n'est pas excessible")
 
     return JsonResponse(data)
 
@@ -243,6 +247,9 @@ def my_account(request):
         "email": user.email
     }
     return render(request, "substitute/account.html", context)
+
+def notices(request):
+    return render(request, 'substitute/notices.html')
 
 
 
