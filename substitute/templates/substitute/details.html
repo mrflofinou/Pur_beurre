@@ -68,14 +68,19 @@
     {% if user.is_authenticated %}
         <script>
         $(function() {
+            // Use JS library 'Cookie' to get the CSRF cookie
+            var csrftoken = Cookies.get('csrftoken');
+            // The token is use to secure the AJAX POST method
+            $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
             $("#save").click(function () {
                 $.ajax({
+                    type: 'POST',
                     url: '{% url "substitute:save_product" %}',
                     data: {
-                    'code': '{{code}}',
-                    'name': '{{name}}',
-                    'nutriscore': '{{nutriscore}}',
-                    'picture': '{{picture}}',
+                        'code': '{{code}}',
+                        'name': '{{name}}',
+                        'nutriscore': '{{nutriscore}}',
+                        'picture': '{{picture}}',
                     },
                     dataType: 'json',
                     success: function (data) {

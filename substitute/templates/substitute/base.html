@@ -55,7 +55,7 @@
                 </li>
               {% else %}
                 <li class="nav-item">
-                  <a class="nav-link js-scroll-trigger" id="account" href="{% url 'substitute:my_account' %}"><i class="fas fa-user"></i> Mon Compte</a>
+                  <a class="nav-link js-scroll-trigger" id="account" href="{% url 'my_account' %}"><i class="fas fa-user"></i> Mon Compte</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link js-scroll-trigger" id="products" href="{% url 'substitute:my_products' %}"><img src="{% static 'substitute/img/carotte.png' %}" style="height:20px; width:20px" alt="menu">Mes Produits</a>
@@ -103,6 +103,9 @@
     <!-- JQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+
+    <!-- Script Javascript Cookie 'To get cookies' -->
+    <script src="{% static 'substitute/js/js.cookie.js' %}"></script>
 
     {% block javascript %}{% endblock  %}
 

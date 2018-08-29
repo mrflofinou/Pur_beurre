@@ -84,12 +84,17 @@
 {% block javascript %}
 <script>
     $(function() {
+        // Use JS library 'Cookie' to get the CSRF cookie
+        var csrftoken = Cookies.get('csrftoken');
+        // The token is use to secure the AJAX POST method
+        $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
         var button_list = $(".delete_product");
         button_list.each(function(){
             $(this).click(function () {
                 var conf = confirm("Êtes-vous sûr de vouloir supprimer ce produit ?");
                 if (conf == true){
                     $.ajax({
+                        type: 'POST',
                         url: '{% url "substitute:delete_product" %}',
                         data: {
                         'code': this.id,
