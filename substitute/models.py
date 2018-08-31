@@ -10,7 +10,7 @@ class Product(Model):
     users = ManyToManyField(User, related_name="products")
 
     class Meta:
-        verbose_name = "produits enregistrés"
+        verbose_name = "produits enregistré"
 
     def __str__(self):
         return self.name
