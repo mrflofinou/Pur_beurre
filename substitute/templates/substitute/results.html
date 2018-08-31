@@ -25,7 +25,7 @@
     {% else %}
         <p id="count" style="font-style: italic">{{ count }} résultats</p>
         {% if not my_products %}
-            <h4 class="text-center" style="font-style:italic;">Voici les produits que vous pouver substituer à "{{ query }}"</h4>
+            <h4 class="text-center" style="font-style:italic;">Voici les produits similaires à "{{ query }}" ayant la meilleure note nutritionnelle</h4>
         {% endif %}
         <br>
         <div class="container text-center">
@@ -81,8 +81,23 @@
 {% block javascript %}
 <script>
     $(function() {
-        // Use JS library 'Cookie' to get the CSRF cookie
-        var csrftoken = Cookies.get('csrftoken');
+        // Allows to get cookie 'csrftoken'
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
         // The token is use to secure the AJAX POST method
         $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
         var button_list = $(".delete_product");

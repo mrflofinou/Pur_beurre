@@ -64,45 +64,59 @@
 
 {% block javascript %}
     {% if user.is_authenticated %}
-        <script>
-        $(function() {
-            // Use JS library 'Cookie' to get the CSRF cookie
-            var csrftoken = Cookies.get('csrftoken');
-            // The token is use to secure the AJAX POST method
-            $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
+    <script>
+    $(function() {
+        // Allows to get cookie 'csrftoken'
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+        // The token is use to secure the AJAX POST method
+        $.ajaxSetup({   headers: {  "X-CSRFToken": csrftoken  }  });
+        $("#save").click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '{% url "substitute:save_product" %}',
+                data: {
+                    'code': '{{code}}',
+                    'name': '{{name}}',
+                    'nutriscore': '{{nutriscore}}',
+                    'picture': '{{picture}}',
+                },
+                dataType: 'json',
+                success: function (data) {
+                if ((data.new_product) || (data.product_exists) ) {
+                    alert("Le produit à bien été enregistré dans votre espace personnel");
+                    $("#save").toggleClass("btn-primary").toggleClass("btn-success").attr("disabled", true);
+                    $("#save").text("CE PRODUIT EST ENREGISTRÉ DANS VOTRE ESPACE")
+                }
+                else if(data.error){
+                    alert("Un problème est survenu veuillez recommencer");
+                    }
+                }
+            }); 
+        });
+    });
+    </script>
+    {% else %}
+    <script>
+        $(function(){
             $("#save").click(function () {
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "substitute:save_product" %}',
-                    data: {
-                        'code': '{{code}}',
-                        'name': '{{name}}',
-                        'nutriscore': '{{nutriscore}}',
-                        'picture': '{{picture}}',
-                    },
-                    dataType: 'json',
-                    success: function (data) {
-                    if ((data.new_product) || (data.product_exists) ) {
-                        alert("Le produit à bien été enregistré dans votre espace personnel");
-                        $("#save").toggleClass("btn-primary").toggleClass("btn-success").attr("disabled", true);
-                        $("#save").text("CE PRODUIT EST ENREGISTRÉ DANS VOTRE ESPACE")
-                    }
-                    else if(data.error){
-                        alert("Un problème est survenu veuillez recommencer");
-                        }
-                    }
-                }); 
+                alert("Vous devez être connecté pour pouvoir enregistrer un produit");
             });
         });
-
-        </script>
-    {% else %}
-        <script>
-            $(function(){
-                $("#save").click(function () {
-                    alert("Vous devez être connecté pour pouvoir enregistrer un produit");
-                });
-            });
-        </script>
+    </script>
     {% endif %}
 {% endblock %}
