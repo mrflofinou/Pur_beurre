@@ -66,19 +66,22 @@ class Substitutes:
 
         data = DataApiClient(query=self.query)
         data_from_api = data.get_data_from_api()["products"]
-        if data_from_api:
-            # I've made the choice to select the first product fromthe results
-            # of the user request, to find the category.
-            product = data_from_api[0]
-            # I choose the last categery of the list 'categories_hieararchy'
-            category_hierarchy = product["categories_hierarchy"]
-            category_extracted = category_hierarchy[-1]
-            # I just want to keep the string after the caracters of the country
-            # ex: "fr:pâte-a-tartiner"
-            category_string = re.search(r":(.+)$", category_extracted)
-            category = category_string.group(1)
-            category = category.replace("-", " ")
-        else:
+        try:
+            if data_from_api:
+                # I've made the choice to select the first product fromthe results
+                # of the user request, to find the category.
+                product = data_from_api[0]
+                # I choose the last categery of the list 'categories_hieararchy'
+                category_hierarchy = product["categories_hierarchy"]
+                category_extracted = category_hierarchy[-1]
+                # I just want to keep the string after the caracters of the country
+                # ex: "fr:pâte-a-tartiner"
+                category_string = re.search(r":(.+)$", category_extracted)
+                category = category_string.group(1)
+                category = category.replace("-", " ")
+            else:
+                raise NoProductError
+        except KeyError:
             raise NoProductError
         return category
 
