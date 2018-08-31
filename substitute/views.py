@@ -126,7 +126,7 @@ def save_product(request):
     if request.method == "POST":
         user = get_object_or_404(User, username=request.user)
         # I check if the product is already in the data base or not.
-        if not Product.objects.filter(code=request.GET.get("code")).exists():
+        if not Product.objects.filter(code=request.POST.get("code")).exists():
             try:
                 with transaction.atomic():
                     product = Product(
@@ -147,7 +147,7 @@ def save_product(request):
         else:
             try:
                 with transaction.atomic():
-                    product = Product.objects.get(code=request.GET.get("code"))
+                    product = Product.objects.get(code=request.POST.get("code"))
                     data = {
                         "product_exists": True
                     }
