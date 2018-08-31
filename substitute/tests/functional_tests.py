@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 import selenium.webdriver.support.ui as ui
 from selenium.webdriver.support import expected_conditions as ec
 
+from ..models import Product
 
 class FunctionalTest(LiveServerTestCase):
 
@@ -126,8 +127,6 @@ class FunctionalTest(LiveServerTestCase):
         print(User.objects.all())
         self.assertEqual(new_users_number, old_users_number + 1)
 
-    # Faire test cas d'exception (mauvais email, mauvais password, pseudo deja existant)
-
     def test_signup_user_already_exists(self):
         self.user_signup(username="testuser",
                 email="Fiflo@email.com",
@@ -220,9 +219,34 @@ class FunctionalTest(LiveServerTestCase):
         self.user_makes_search("nutella")
         substitute = self.driver.find_element_by_css_selector("a.substitute")
         substitute.click()
-        self.wait.until(ec.presence_of_element_located((By.ID, "details")))
+        self.wait.until(ec.presence_of_element_located((By.ID, "save")))
         save_element = self.driver.find_element_by_id("save")
         save_element.click()
         new_number_products = self.user.products.count()
         print(self.user.products.all())
         self.assertEqual(new_number_products, old_number_products + 1)
+
+    def test_delete_product(self):
+        self.product = Product.objects.create(code=3700279306342,
+                                                name="Mont Blanc Chocolat",
+                                                nutriscore="c",
+                                                url_picture ="",)
+        self.product.save()
+        self.product.users.add(self.user)
+        old_number_products = self.user.products.count()
+        print(self.user.products.all())
+        self.user_login(username="testuser",
+                        password="testpswd",
+                        waiting="account")
+        my_products_element = self.driver.find_element_by_id("products")
+        my_products_element.click()
+        self.wait.until(ec.presence_of_element_located((By.ID, "substitutes")))
+        delete_element = self.driver.find_element_by_css_selector(".delete_product")
+        delete_element.click()
+        self.wait.until(ec.alert_is_present())
+        confirm = self.driver.switch_to_alert()
+        confirm.accept()
+        self.wait.until(ec.alert_is_present())
+        new_number_products = self.user.products.count()
+        print(self.user.products.all())
+        self.assertEqual(new_number_products, old_number_products - 1)
