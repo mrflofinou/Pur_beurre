@@ -92,7 +92,7 @@ class SearchAlgorithmeTestCase(TestCase):
             "jambon", "prince", "kiri", "eau minérale gazeuse", "ketchup",
             "muesli", "moutarde de dijon", "ice tea", "chocolat au lait",
             "pain de mie", "ricoré", "pringles", "biscuits sésame", "Oreo",
-            "tagada", "thon entier au naturel", "lait", "knaki",
+            "tagada", "thon entier au naturel", "lait", "knacki",
             "petit beurre", "nesquik", "jus d'orange", "lardons",
             "coco pops", "cracottes", "oasis", "activia",
             "yaourt aux fruits", "chavroux", "fromage", "perrier", "crunch",
