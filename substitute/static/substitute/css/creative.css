@@ -338,3 +338,11 @@ header.masthead p {
 ul {
   list-style-type: none
 }
+
+.result-nutriscore {
+  position: absolute;
+  right: -45px;
+  top: -140px;
+  width: 100px;
+  height: 40px;
+}

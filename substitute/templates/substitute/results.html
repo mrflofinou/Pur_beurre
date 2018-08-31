@@ -20,21 +20,22 @@
         {% if my_products %}
             <p class="text-center" style="font-weight: bold">Vous n'avez pas encore enregistré de produits</p>
         {% else %}
-            <p class="text-center" style="font-weight: bold">Nous n'avons pas trouvé de substituts saints pour votre requête</p>
+            <p class="text-center" style="font-weight: bold">Nous n'avons pas trouvé de substituts sains pour "{{ query }}"</p>
         {% endif %}
     {% else %}
         <p id="count" style="font-style: italic">{{ count }} résultats</p>
         {% if not my_products %}
-            <h4 class="text-center">Vous pouvez remplacer cet aliment par:</h4>
+            <h4 class="text-center" style="font-style:italic;">Voici les produits que vous pouver substituer à "{{ query }}"</h4>
         {% endif %}
         <br>
         <div class="container text-center">
             <div class="row">
                 {% for substitute in substitutes %}
                     <div class="col-sm-4 text-center">
-                        <a href="{% url 'substitute:details' product_id=substitute.id_product %}" class="substitute">
-                            <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
-                            <h5>{{ substitute.name }}</h5>
+                        <a href="{% url 'substitute:details' product_id=substitute.id_product %}" class="col-sm-12 substitute">
+                                <img class="img-responsive rounded my-2" src="{{ substitute.picture }}" style="height:250px; width:150px" alt="{{ substitute.name }}">
+                                <img class="result-nutriscore" src="https://static.openfoodfacts.org/images/misc/nutriscore-{{ substitute.nutriscore }}.svg" alt="nutriscore">
+                            <h5 style="font-weight:bold;">{{ substitute.name }}</h5>
                         </a>
                         {% if my_products %}
                             <button id="{{ substitute.id_product }}" class="delete_product mx-auto mb-3 btn">SUPPRIMER</button>
