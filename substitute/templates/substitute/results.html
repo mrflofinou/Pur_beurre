@@ -14,13 +14,13 @@
 
 <section class="container" id="substitutes">
     {% if not query %}
-        <p class="text-center" style="font-weight: bold">Vous devez renseigner un aliment</p>
+        <p class="text-center" style="font-weight: bold">Vous devez renseigner le nom d'un aliment</p>
     {% elif not substitutes %}
         <p id="count" style="font-style: italic">{{ count }} résultats</p>
         {% if my_products %}
             <p class="text-center" style="font-weight: bold">Vous n'avez pas encore enregistré de produits</p>
         {% else %}
-            <p class="text-center" style="font-weight: bold">Nous n'avons pas trouvé de substituts sains pour "{{ query }}"</p>
+            <p class="text-center" style="font-weight: bold">Nous n'avons pas trouvé de produits similaires à "{{ query }}"</p>
         {% endif %}
     {% else %}
         <p id="count" style="font-style: italic">{{ count }} résultats</p>
