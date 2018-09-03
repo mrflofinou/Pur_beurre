@@ -1,1 +1,1 @@
-web: gunicorn purbeurreproject.wsgi
+web: gunicorn purbeurre_project.wsgi
