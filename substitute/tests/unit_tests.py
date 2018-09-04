@@ -6,7 +6,7 @@ import requests
 from ..libs.api_interactions import DataApiClient, Substitutes
 
 
-class SearchAlgorithmeTestCase(TestCase):
+class SearchAlgorithmTestCase(TestCase):
 
     def setUp(self):
         self.user_request = DataApiClient()
@@ -18,17 +18,17 @@ class SearchAlgorithmeTestCase(TestCase):
     
     def test_api_returns_list_of_products(self):
         self.user_request.query = "nutella"
-        data = self.user_request.get_data_from_api()["products"]
+        data = self.user_request.get_products()["products"]
         self.assertTrue(len(data) > 0)
     
     def test_api_request_unique_product_returns_dictionnary(self):
         self.user_request.product_id = "3175681105393"
-        data = self.user_request.get_unique_product_from_api()
+        data = self.user_request.get_product()
         self.assertEqual(f"{type(data)}", "<class 'dict'>")
 
-    @patch("substitute.libs.api_interactions.DataApiClient.get_data_from_api")
-    def test_get_category_from_product(self, mock_get_data_from_api):
-        mock_get_data_from_api.return_value = {
+    @patch("substitute.libs.api_interactions.DataApiClient.get_products")
+    def test_get_category_from_product(self, mock_get_products):
+        mock_get_products.return_value = {
             "products": [
                 {
                     "categories_hierarchy": [
@@ -44,12 +44,12 @@ class SearchAlgorithmeTestCase(TestCase):
         category = self.substitutes._get_category()
         self.assertEqual(category, "Pâtes à tartiner")
 
-    @patch("substitute.libs.api_interactions.DataApiClient.get_data_from_api")
+    @patch("substitute.libs.api_interactions.DataApiClient.get_products")
     @patch("substitute.libs.api_interactions.Substitutes._get_category")
-    def test_get_substitutes_returns_substitutes_of_nutella(self, mock_get_category, mock_get_data_from_api):
+    def test_get_substitutes_returns_substitutes_of_nutella(self, mock_get_category, mock_get_products):
         mock_get_category.return_value = "Pâte à tartiner"
         
-        mock_get_data_from_api.return_value = {
+        mock_get_products.return_value = {
             "products": [
                 {
                     "name": "test1"
@@ -73,12 +73,12 @@ class SearchAlgorithmeTestCase(TestCase):
         substitutes_list = self.substitutes.get_substitutes()
         self.assertEqual(len(substitutes_list), 5)
 
-    @patch("substitute.libs.api_interactions.DataApiClient.get_data_from_api")
+    @patch("substitute.libs.api_interactions.DataApiClient.get_products")
     @patch("substitute.libs.api_interactions.Substitutes._get_category")
-    def test_get_substitutes_returns_empty_list_if_no_substitutes(self, mock_get_category, mock_get_data_from_api):
+    def test_get_substitutes_returns_empty_list_if_no_substitutes(self, mock_get_category, mock_get_products):
         mock_get_category.return_value = "Pâte à tartiner"
         
-        mock_get_data_from_api.return_value = {
+        mock_get_products.return_value = {
             "products": []
         }
         
@@ -87,6 +87,7 @@ class SearchAlgorithmeTestCase(TestCase):
         self.assertEqual(len(substitutes_list), 0)
     
     def test_app_return_substitutes(self):
+        """ This test allows to check the method 'get_substitutes' works """
         products = [
             "nutella", "coca-cola", "belvita", "eau de source", "granola",
             "jambon", "prince", "kiri", "eau minérale gazeuse", "ketchup",
@@ -110,6 +111,6 @@ class SearchAlgorithmeTestCase(TestCase):
                 count += 1
             else:
                 no_results_products.append(product)
-            success_percentage = (count*100/50)
+        success_percentage = (count*100/len(products))
         print(len(no_results_products), no_results_products)
         self.assertTrue(success_percentage >= 95)

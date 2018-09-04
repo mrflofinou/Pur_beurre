@@ -104,7 +104,7 @@ class FunctionalTest(LiveServerTestCase):
         product_picture_url = product_picture.get_attribute("src")
         nutriscore_picture = self.driver.find_element_by_id("nutriscore-picture")
         nutriscore_picture_url = nutriscore_picture.get_attribute("src")
-        nutrition_picture = self.driver.find_element_by_id("nutriscore-picture")# ERREUR d'ID !
+        nutrition_picture = self.driver.find_element_by_id("nutriscore-picture")
         nutrition_picture_url = nutrition_picture.get_attribute("src")
         ingredients_list = self.driver.find_element_by_id("ingredients")
         ingredients_list_text = ingredients_list.text
@@ -185,7 +185,7 @@ class FunctionalTest(LiveServerTestCase):
         self.user_login(username="testuser",
                         password="testpswd",
                         waiting="account")
-        self.assertEqual(self.driver.current_url, self.live_server_url + "/") # Tester / urls django
+        self.assertEqual(self.driver.current_url, self.live_server_url + "/")
 
     def test_login_wrong_username(self):
         self.user_login(username="wrongusername",
