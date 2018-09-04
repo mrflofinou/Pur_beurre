@@ -27,8 +27,7 @@
         {% if not my_products %}
             <h4 class="text-center" style="font-style:italic;">Voici les produits similaires à "{{ query }}" ayant la meilleure note nutritionnelle</h4>
         {% endif %}
-        <br>
-        <div class="container text-center">
+        <div class="container text-center mt-5">
             <div class="row">
                 {% for substitute in substitutes %}
                     <div class="col-sm-4 text-center">
@@ -114,7 +113,7 @@
                         dataType: 'json',
                         success: function (data) {
                         if (data.delete) {
-                            alert("Le produit à bien été supprimer de votre espace personnel");
+                            alert("Le produit à bien été supprimé de votre espace personnel");
                             window.location.reload();
                         }
                         else if(data.error){

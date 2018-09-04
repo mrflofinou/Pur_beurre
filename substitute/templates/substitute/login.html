@@ -13,8 +13,7 @@
 
   <section>
     <div class="container text-center">
-        <h3>Connexion</h3>
-        <br>
+        
         {% if form.errors %}
             <p id="login_error" style="color: red; font-weight: bold">Le nom d'utilisateur et le mot de passe ne correspondent pas.</p>
         {% endif %}
@@ -28,7 +27,7 @@
                     </div>
                 </div>
             {% endfor %}
-            <button class="btn btn-primary" id="submitlogin" type="submit">Login</button>
+            <button class="btn btn-primary" id="submitlogin" type="submit">Connexion</button>
         </form>
         <br>
         <p>
