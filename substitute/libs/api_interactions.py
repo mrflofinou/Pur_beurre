@@ -16,9 +16,9 @@ class DataApiClient:
         self.nutriscore = kwargs.get("nutriscore", "")
         self.product_id = kwargs.get("product_id", "")
 
-    def get_data_from_api(self):
+    def get_products(self):
         """
-        This function search a product in Open Food Facts from the query of the
+        This method searchs a product in Open Food Facts from the query of the
         user
         """
 
@@ -44,7 +44,9 @@ class DataApiClient:
         # return a list of dictionaries. Every product is a dictionary
         return data
     
-    def get_unique_product_from_api(self):
+    def get_product(self):
+        """ This method get the details of a unique product """
+
         api_request = requests.get(
                             "https://world.openfoodfacts.org/api/v0/product/"
                             + f"{self.product_id}" + "json")
@@ -56,6 +58,8 @@ class DataApiClient:
 class Substitutes:
     """ This class allows to find substitutes of food """
 
+    NUTRITION_GRADES = ["a", "b", "c","d","e"]
+
     def __init__(self, query):
         self.query = query
 
@@ -65,11 +69,11 @@ class Substitutes:
         """
 
         data = DataApiClient(query=self.query)
-        data_from_api = data.get_data_from_api()["products"]
+        data_from_api = data.get_products()["products"]
         try:
             if data_from_api:
-                # I've made the choice to select the first product fromthe results
-                # of the user request, to find the category.
+                # I've made the choice to select the first product from
+                # the results of the user's request, to find the category.
                 product = data_from_api[0]
                 # I choose the last categery of the list 'categories_hieararchy'
                 category_hierarchy = product["categories_hierarchy"]
@@ -87,7 +91,7 @@ class Substitutes:
 
     def get_substitutes(self):
         """
-        This method get a list of substitues from the category of a sought
+        This method gets a list of substitues from the category of a searched
         product.
         """
 
@@ -98,16 +102,16 @@ class Substitutes:
         index = 0
         nutrition_grades = ["a", "b", "c","d","e"]
         # The goal of this loop is to have substitutes in the same category of
-        # the sought product. If the search with nutrition grade 'A' don't have
-        # results, I search substitutes in same category but with higher
+        # the searched product. If the search with nutrition grade 'A' doesn't
+        # have results, I search substitutes in same category but with higher
         # nutrition grade
         while len(substitutes) == 0:
             try:
                 data = DataApiClient(
                                     category=substitute_category,
-                                    nutriscore=nutrition_grades[index]
+                                    nutriscore=self.NUTRITION_GRADES[index]
                                     )
-                substitutes = data.get_data_from_api()["products"]
+                substitutes = data.get_products()["products"]
                 index += 1
             except IndexError:
                 substitutes = []
