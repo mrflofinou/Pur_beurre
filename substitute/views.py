@@ -74,7 +74,7 @@ def details(request, product_id):
     """ Page with details of a selected substitute """
     
     # I check if a product is already saved by a user.
-    # The button to save will be disable if the relation alreday exists between
+    # The button to save will be disabled if the relation already exists between
     # a user and a product.
     if request.user.is_authenticated:
         user = User.objects.get(username=request.user)
@@ -104,9 +104,9 @@ def details(request, product_id):
         # When a session expired or didn't exists before,
         # the list of substitutes is lost or not exist.
         # exceptionally I make a request to the API to find a product when the
-        # sesseion don't have substitue list or if the product isn't in it.
+        # session does not have a substitute list or if the product isn't in it.
         api_request = DataApiClient(product_id = product_id)
-        product = api_request.get_unique_product_from_api()
+        product = api_request.get_product()
         context = {
             "code": product["code"],
             "name": product.get("product_name_fr"),
@@ -164,13 +164,13 @@ def save_product(request):
                 "error": True
             }                
     else:
-        raise Http404("Cette page n'est pas excessible")
+        raise Http404("Cette page n'est pas accessible.")
 
     return JsonResponse(data)
 
 @transaction.atomic
 def delete_product(request):
-    """ To delete a product from an user account """
+    """ To delete a product from a user account """
 
     if request.method == 'POST':
         user = get_object_or_404(User, username=request.user)
@@ -186,7 +186,7 @@ def delete_product(request):
                 "error": True
             }
     else:
-        raise Http404("Cette page n'est pas excessible")
+        raise Http404("Cette page n'est pas accessible.")
 
     return JsonResponse(data)
 
@@ -252,4 +252,6 @@ def my_account(request):
     return render(request, "substitute/account.html", context)
 
 def notices(request):
+    """ Page for legal notices """
+
     return render(request, 'substitute/notices.html')
