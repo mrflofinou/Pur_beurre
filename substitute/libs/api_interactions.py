@@ -100,7 +100,6 @@ class Substitutes:
         # index is used to choose a nutriscore in the next list and obtain
         # substitutes in function of the nutrition grade
         index = 0
-        nutrition_grades = ["a", "b", "c","d","e"]
         # The goal of this loop is to have substitutes in the same category of
         # the searched product. If the search with nutrition grade 'A' doesn't
         # have results, I search substitutes in same category but with higher
