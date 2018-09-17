@@ -1,0 +1,18 @@
+language: python
+python:
+  - '3.6'
+
+before_script:
+  - pip install -r requirements.txt
+
+branches:
+  only:
+    - master
+
+env: DJANGO_SETTINGS_MODULE="purbeurre_project.settings.travis"
+
+services:
+  - postgresql
+
+script:
+  - ./manage.py test substitute.tests.unit_tests
