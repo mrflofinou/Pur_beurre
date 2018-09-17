@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^logout/$', auth_views.LogoutView.as_view(next_page="index"), name="logout"),
     url(r'^my_account/$', views.my_account, name="my_account"),
     url(r'^notices/$', views.notices, name="notices"),
-    url(r'^control/$', admin.site.urls)
+    url(r'^control/', admin.site.urls)
 ]
 
 if settings.DEBUG:
