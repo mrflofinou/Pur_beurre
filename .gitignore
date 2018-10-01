@@ -1,4 +1,6 @@
+env/
 */__pycache__/
 *.pyc
 geckodriver.log
 purbeurre_project/settings/production.py
+purbeurre_project/staticfiles
