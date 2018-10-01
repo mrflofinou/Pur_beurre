@@ -1,5 +1,6 @@
 import re
 import html
+import logging
 
 import requests
 from django.db import transaction, IntegrityError
@@ -15,6 +16,8 @@ from .models import Product
 from .libs.exceptions import NoProductError
 from .libs.api_interactions import Substitutes, DataApiClient
 
+
+logger = logging.getLogger(__name__)
 
 def index(request):
     """ Home page of Pur Beurre """
@@ -236,6 +239,12 @@ def signup(request):
             password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=password)
             login(request, user)
+            
+            logger.info('New user registered', exc_info=True, extra={
+                # Optionally pass a request and we'll grab any information we can
+                'request': request,
+            })
+
             return redirect("index")
     else:
         form = SignUpForm()
