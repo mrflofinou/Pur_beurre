@@ -70,6 +70,10 @@ def results(request):
             "count": 0,
             'paginate': False
         }
+        logger.info('No products found', exc_info=True, extra={
+        # Optionally pass a request and we'll grab any information we can
+        'request': request,
+        })
 
     return render(request, "substitute/results.html", context)    
 
@@ -120,6 +124,10 @@ def details(request, product_id):
             "stores": product.get("stores"),
             "already_saved": existing_relation
         }
+        logger.warning('Product not in session, a call to API is made', exc_info=True, extra={
+        # Optionally pass a request and we'll grab any information we can
+        'request': request,
+        })
 
     return render(request, "substitute/details.html", context)
 
@@ -140,6 +148,10 @@ def save_product(request):
                         url_picture = request.POST.get("picture", ""),
                     )
                     product.save()
+                    logger.info('New product registered in database', exc_info=True, extra={
+                    # Optionally pass a request and we'll grab any information we can
+                    'request': request,
+                    })
                 data = {
                     "new_product": True
                 }
