@@ -136,4 +136,5 @@ INTERNAL_IPS = ['127.0.0.1']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Custom session cookie age
-SESSION_COOKIE_AGE = 43200
+SESSION_COOKIE_AGE = 21600
+
