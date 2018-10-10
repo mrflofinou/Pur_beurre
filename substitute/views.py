@@ -148,10 +148,10 @@ def save_product(request):
                         url_picture = request.POST.get("picture", ""),
                     )
                     product.save()
-                    logger.info('New product registered in database', exc_info=True, extra={
-                    # Optionally pass a request and we'll grab any information we can
-                    'request': request,
-                    })
+                logger.info('New product registered in database', exc_info=True, extra={
+                # Optionally pass a request and we'll grab any information we can
+                'request': request,
+                })
                 data = {
                     "new_product": True
                 }
