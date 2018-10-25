@@ -87,6 +87,8 @@ class Substitutes:
                 raise NoProductError
         except KeyError:
             raise NoProductError
+        except IndexError:
+            raise NoProductError
         return category
 
     def get_substitutes(self):
