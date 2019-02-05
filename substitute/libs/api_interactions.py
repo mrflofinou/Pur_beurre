@@ -31,7 +31,7 @@ class DataApiClient:
             "tagtype_1": "nutrition_grades",
             "tag_contains_1": "contains",
             "tag_1": self.nutriscore,
-            "sort_by": "product_name",
+            "sort_by": "popularity",
             "page_size": 50,
             "search_simple": 1,
             "json": 1
