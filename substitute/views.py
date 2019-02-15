@@ -12,7 +12,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from .forms import SignUpForm
-from .models import Product
+from .models import Product, Query
 from .libs.exceptions import NoProductError
 from .libs.api_interactions import Substitutes, DataApiClient
 
@@ -28,6 +28,7 @@ def results(request):
     """ Page with results of a request """
 
     query = request.GET.get("query")
+    request.session["query"] = query
     try:
         substitutes = Substitutes(query=query)
         substitutes_request = substitutes.get_substitutes()
@@ -81,13 +82,19 @@ def details(request, product_id):
     """ Page with details of a selected substitute """
     
     # I check if a product is already saved by a user.
-    # The button to save will be disabled if the relation already exists between
-    # a user and a product.
+    # The button to save will be disabled if the relation already exists
+    # between a user and a product.
     if request.user.is_authenticated:
         user = User.objects.get(username=request.user)
         existing_relation = user.products.filter(code=product_id).exists()
     else:
         existing_relation = False
+    
+    if existing_relation:
+        associated_query = Query.objects.get(product__code=product_id,
+                                        user = user.id).name
+    else:
+        associated_query = False
 
     try:
         selected_product = [substitute
@@ -103,7 +110,8 @@ def details(request, product_id):
                 "ingredients": substitute.get("ingredients_text_with_allergens_fr", ""),
                 "nutrition_picture": substitute.get("image_nutrition_url", ""),
                 "stores": substitute.get("stores"),
-                "already_saved": existing_relation
+                "already_saved": existing_relation,
+                "query": associated_query
             }
         else:
             raise KeyError
@@ -122,7 +130,8 @@ def details(request, product_id):
             "ingredients": product.get("ingredients_text_with_allergens_fr"),
             "nutrition_picture": product.get("image_nutrition_url", ""),
             "stores": product.get("stores"),
-            "already_saved": existing_relation
+            "already_saved": existing_relation,
+            "query": associated_query
         }
         logger.warning('Product not in session, a call to API is made', exc_info=True, extra={
         # Optionally pass a request and we'll grab any information we can
@@ -148,6 +157,11 @@ def save_product(request):
                         url_picture = request.POST.get("picture", ""),
                     )
                     product.save()
+                    query = Query(
+                        name = request.session["query"],
+                        user = user,
+                        product = product)
+                    query.save()
                 logger.info('New product registered in database', exc_info=True, extra={
                 # Optionally pass a request and we'll grab any information we can
                 'request': request,
@@ -163,6 +177,11 @@ def save_product(request):
             try:
                 with transaction.atomic():
                     product = Product.objects.get(code=request.POST.get("code"))
+                    query = Query(
+                        name = request.session["query"],
+                        user = user,
+                        product = product)
+                    query.save()
                     data = {
                         "product_exists": True
                     }
@@ -193,6 +212,8 @@ def delete_product(request):
             with transaction.atomic():
                 product = Product.objects.get(code=request.POST.get("code"))
                 product.users.remove(user)
+                query = Query.objects.get(user=user.id, product=product.id)
+                query.delete()
                 data = {
                     "delete": True,
                 }
