@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 import selenium.webdriver.support.ui as ui
 from selenium.webdriver.support import expected_conditions as ec
 
-from ..models import Product
+from ..models import Product, Query
 
 class FunctionalTest(LiveServerTestCase):
 
@@ -63,6 +63,15 @@ class FunctionalTest(LiveServerTestCase):
         submit.click()
         self.wait.until(ec.presence_of_element_located((By.ID, waiting)))
     
+    def save_product(self):
+        substitute = self.driver.find_element_by_css_selector("a.substitute")
+        substitute.click()
+        self.wait.until(ec.presence_of_element_located((By.ID, "save")))
+        save_element = self.driver.find_element_by_id("save")
+        save_element.click()
+        confirm = self.driver.switch_to_alert()
+        confirm.accept()
+    
     def test_home_page_returns_200(self):
         res = Client().get(f'{self.driver.current_url}')   
         self.assertEqual(res.status_code, 200)
@@ -83,7 +92,7 @@ class FunctionalTest(LiveServerTestCase):
                     )
     
     def test_results_page_returns_200_if_no_substiutes(self):
-        self.user_makes_search("oreo")
+        self.user_makes_search("testnothing")
         count_element = self.driver.find_element_by_id("count")
         res = Client().get(f'{self.driver.current_url}')
         self.assertEqual(count_element.text, "0 résultats") 
@@ -117,14 +126,12 @@ class FunctionalTest(LiveServerTestCase):
 
     def test_signup(self):
         old_users_number = User.objects.count()
-        print(User.objects.all())
         self.user_signup(username="Fiflo",
                         email="Fiflo@email.com",
                         password1="bidule01",
                         password2="bidule01")
         self.wait.until(ec.presence_of_element_located((By.ID, "account")))
         new_users_number = User.objects.count()
-        print(User.objects.all())
         self.assertEqual(new_users_number, old_users_number + 1)
 
     def test_signup_user_already_exists(self):
@@ -210,34 +217,27 @@ class FunctionalTest(LiveServerTestCase):
         self.wait.until(ec.presence_of_element_located((By.ID, "login")))
         self.assertEqual(self.driver.current_url, self.live_server_url + "/")
 
-    def test_save_product(self):
+    def test_save_product_and_query(self):
         old_number_products = self.user.products.count()
-        print(self.user.products.all())
+        old_number_queries = Query.objects.all().count()
         self.user_login(username="testuser",
                         password="testpswd",
                         waiting="account")
         self.user_makes_search("nutella")
-        substitute = self.driver.find_element_by_css_selector("a.substitute")
-        substitute.click()
-        self.wait.until(ec.presence_of_element_located((By.ID, "save")))
-        save_element = self.driver.find_element_by_id("save")
-        save_element.click()
+        self.save_product()
         new_number_products = self.user.products.count()
-        print(self.user.products.all())
+        new_number_queries = Query.objects.all().count()
         self.assertEqual(new_number_products, old_number_products + 1)
+        self.assertEqual(new_number_queries, old_number_queries + 1)
 
-    def test_delete_product(self):
-        self.product = Product.objects.create(code=3700279306342,
-                                                name="Mont Blanc Chocolat",
-                                                nutriscore="c",
-                                                url_picture ="",)
-        self.product.save()
-        self.product.users.add(self.user)
-        old_number_products = self.user.products.count()
-        print(self.user.products.all())
+    def test_delete_product_and_query(self):
         self.user_login(username="testuser",
                         password="testpswd",
                         waiting="account")
+        self.user_makes_search("nutella")
+        self.save_product()
+        old_number_products = self.user.products.count()
+        old_number_queries = Query.objects.all().count()
         my_products_element = self.driver.find_element_by_id("products")
         my_products_element.click()
         self.wait.until(ec.presence_of_element_located((By.ID, "substitutes")))
@@ -248,5 +248,21 @@ class FunctionalTest(LiveServerTestCase):
         confirm.accept()
         self.wait.until(ec.alert_is_present())
         new_number_products = self.user.products.count()
-        print(self.user.products.all())
+        new_number_queries = Query.objects.all().count()
         self.assertEqual(new_number_products, old_number_products - 1)
+        self.assertEqual(new_number_queries, old_number_queries - 1)
+    
+    def save_product_detail_page_return_associated_query(self):
+        self.user_login(username="testuser",
+                        password="testpswd",
+                        waiting="account")
+        self.user_makes_search("nutella")
+        self.save_product()
+        my_products_element = self.driver.find_element_by_id("products")
+        my_products_element.click()
+        self.wait.until(ec.presence_of_element_located((By.ID, "substitutes")))
+        substitute = self.driver.find_element_by_css_selector("a.substitute")
+        substitute.click()
+        self.wait.until(ec.presence_of_element_located((By.ID, "details")))
+        query = self.driver.find_element_by_id("associated_query")
+        self.assertEqual(query.text, "nutella")
